@@ -1,5 +1,10 @@
 #pragma once
 
+#include <spdlog/fmt/fmt.h>
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+
 namespace io
 {
     template <typename... Args>
@@ -14,7 +19,7 @@ namespace io
         spdlog::error(str.data(), std::forward<Args>(params)...);
     }
 
-    bool read_file(std::string_view name, std::vector<uint8_t> &out)
+    static bool read_file(std::string_view name, std::vector<uint8_t> &out)
     {
         std::ifstream file(name.data(), std::ios::binary);
         if (!file.good())

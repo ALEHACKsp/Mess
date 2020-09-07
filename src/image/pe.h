@@ -15,6 +15,7 @@ struct pe_image
         if (!io::read_file(name, raw))
         {
             io::log_err("failed to read image file {}.", name);
+            return;
         }
 
         image_ptr = reinterpret_cast<win::image_t<true> *>(raw.data());
@@ -23,7 +24,7 @@ struct pe_image
         auto nt = image_ptr->get_nt_headers();
         for (int i = 0; i < nt->file_header.num_sections; i++)
         {
-            sections.emplace_back(nt->get_section(i));
+            sections.emplace_back(*nt->get_section(i));
         }
 
         // relocations
