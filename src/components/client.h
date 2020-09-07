@@ -35,4 +35,9 @@ struct client_t
     {
         return ip == ip_;
     }
+
+    void clean()
+    {
+        close(socket);
+    }
 };

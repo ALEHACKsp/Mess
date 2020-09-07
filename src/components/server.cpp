@@ -118,10 +118,7 @@ void server_t::read()
         int size = c.read(buf.data(), buf.size());
         if (size > 0)
         {
-            std::string msg(buf.data(), size);
-
-            io::log("{} : {}", c.ip, msg);
-
+            on_recv.call(c.socket, std::string_view(buf.data(), size));
             continue;
         }
 

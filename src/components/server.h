@@ -9,12 +9,14 @@ struct server_t {
     fd_set fdset;
     int sock;
     bool active;
+    bool allow_multiple_connections;
     std::vector<client_t> clients;
 
     int select_timeout = 5;
 
     event_t<int, std::string_view> on_accept;
     event_t<int> on_disconnect;
+    event_t<int, std::string_view> on_recv;
 
     bool start();
     int peek();
