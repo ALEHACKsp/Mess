@@ -13,18 +13,18 @@ int main()
     s.start();
 
     s.on_accept.add([&](int socket, std::string_view ip) {
-        auto it = std::find(s.clients.begin(), s.clients.end(), ip);
-        if (it != s.clients.end() && !s.allow_multiple_connections)
-        {
-            io::log("{} is already connected.", ip);
-            close(socket);
-            return;
-        }
-
         client_t new_client;
         new_client.socket = socket;
         new_client.ip = ip;
         new_client.valid = true;
+
+        auto it = std::find(s.clients.begin(), s.clients.end(), new_client);
+        if (it != s.clients.end() && !s.allow_multiple_connections)
+        {
+            io::log_err("{} is already connected.", ip);
+            new_client.clean();
+            return;
+        }
 
         s.clients.emplace_back(new_client);
 

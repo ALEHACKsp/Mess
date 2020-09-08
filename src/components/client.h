@@ -26,6 +26,16 @@ struct client_t
         return recv(socket, data, size, 0);
     }
 
+    void clean()
+    {
+        close(socket);
+    }
+
+    bool operator==(const client_t cli)
+    {
+        return ip == cli.ip;
+    }
+
     bool operator==(const int sock)
     {
         return socket == sock;
@@ -34,10 +44,5 @@ struct client_t
     bool operator==(const std::string_view ip_)
     {
         return ip == ip_;
-    }
-
-    void clean()
-    {
-        close(socket);
     }
 };
