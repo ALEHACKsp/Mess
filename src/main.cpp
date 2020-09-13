@@ -10,13 +10,21 @@ int main()
     s.select_timeout = 1;
     s.allow_multiple_connections = false;
 
+    s.ctx.cert = "ssl/server.crt";
+    s.ctx.key = "ssl/server.key";
+
+    s.ctx.init();
+
     s.start();
 
     s.on_accept.add([&](int socket, std::string_view ip) {
+
+        io::log("{} connected.", ip);
+
         client_t new_client;
         new_client.socket = socket;
         new_client.ip = ip;
-        new_client.valid = true;
+        new_client.valid = new_client.init_ssl(s.ctx.ssl_ctx);
 
         auto it = std::find(s.clients.begin(), s.clients.end(), new_client);
         if (it != s.clients.end() && !s.allow_multiple_connections)
@@ -27,12 +35,15 @@ int main()
         }
 
         s.clients.emplace_back(new_client);
-
-        io::log("{} connected.", new_client.ip);
     });
 
     s.on_recv.add([&](int socket, std::string_view msg) {
         auto it = std::find(s.clients.begin(), s.clients.end(), socket);
+
+        message_t buf(msg);
+        buf.act = 'd';
+
+        it->write(&buf, sizeof(buf));
 
         io::log("[{}] {}", it->ip, msg);
     });
@@ -47,6 +58,13 @@ int main()
             io::log("{} disconnected.", it->ip);
         }
     });
+
+    std::thread([&]() {
+        while(s.active)
+        {
+            
+        }
+    }).detach();
 
     while (s.active)
     {

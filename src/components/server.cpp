@@ -24,7 +24,7 @@ bool server_t::start()
         return false;
     }
 
-    struct addrinfo hints, *addrinfo = nullptr;
+    addrinfo hints, *addrinfo = nullptr;
 
     memset(&hints, 0, sizeof hints);
 
@@ -111,7 +111,7 @@ void server_t::read()
 {
     for (auto &c : clients)
     {
-        std::array<char, 256> buf;
+        std::array<char, 1024> buf;
         if (!FD_ISSET(c.socket, &fdset))
             continue;
 

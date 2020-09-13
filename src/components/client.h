@@ -5,8 +5,21 @@ struct client_context_t
     int state;
 };
 
-struct ssl_context_t
+struct message_t
 {
+    message_t()
+    {
+        memset(msg, 0, sizeof(msg));
+    }
+    message_t(std::string_view buf)
+    {
+        memset(msg, 0, sizeof(msg));
+        size = buf.size();
+        memcpy(msg, buf.data(), size);
+    }
+    uint32_t size;
+    char msg[256];
+    char act;
 };
 
 struct client_t
@@ -16,19 +29,51 @@ struct client_t
     std::string ip;
     bool valid;
 
-    int write(void *data, size_t size)
+    SSL *ssl;
+
+    bool init_ssl(SSL_CTX *ctx)
     {
-        return send(socket, data, size, 0);
+        ssl = SSL_new(ctx);
+        if (!ssl)
+        {
+            io::log_err("failed to create ssl on {}.", ip);
+            return false;
+        }
+
+        int ret = SSL_set_fd(ssl, socket);
+        if (ret <= 0)
+        {
+            io::log_err("failed to set descriptor on {}.", ip);
+            return false;
+        }
+
+        ret = SSL_accept(ssl);
+
+        if (ret <= 0)
+        {
+            int err = SSL_get_error(ssl, ret);
+            io::log_err("{} failed to accept ssl, return code {}.", ip, err);
+            return false;
+        }
+
+        return true;
+    }
+
+    int write(const void *data, size_t size)
+    {
+        return SSL_write(ssl, data, size);
     }
 
     int read(void *data, size_t size)
     {
-        return recv(socket, data, size, 0);
+        return SSL_read(ssl, data, size);
     }
 
     void clean()
     {
         close(socket);
+        SSL_shutdown(ssl);
+        SSL_free(ssl);
     }
 
     bool operator==(const client_t cli)

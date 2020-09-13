@@ -4,3 +4,7 @@
 [submodule "modules/linux-pe"]
 	path = modules/linux-pe
 	url = https://github.com/can1357/linux-pe.git
+[submodule "modules/mbedtls"]
+	path = modules/mbedtls
+	url = https://github.com/ARMmbed/mbedtls.git
+	branch = mbedtls-2.7
