@@ -6,7 +6,7 @@
 int main()
 {
     server_t s;
-    s.port = 8888;
+    s.port = 6666;
     s.select_timeout = 1;
     s.allow_multiple_connections = false;
 
@@ -18,7 +18,6 @@ int main()
     s.start();
 
     s.on_accept.add([&](int socket, std::string_view ip) {
-
         io::log("{} connected.", ip);
 
         client_t new_client;
@@ -60,9 +59,8 @@ int main()
     });
 
     std::thread([&]() {
-        while(s.active)
+        while (s.active)
         {
-            
         }
     }).detach();
 
